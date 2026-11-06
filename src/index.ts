@@ -3,6 +3,7 @@
 import { ServerAPI, Plugin, Delta, Path } from '@signalk/server-api'
 import camelcase from 'camelcase'
 import mqtt, { MqttClient } from 'mqtt'
+import fs from 'fs'
 import { DbusListener } from './dbus-listener'
 import { VenusToSignalK } from './venusToDeltas'
 import { Message } from './venusToDeltas'
@@ -111,6 +112,18 @@ module.exports = function (app: ServerAPI) {
                 type: 'string',
                 title: 'Venus MQTT Host',
                 default: 'venus.local'
+              },
+              username: {
+                type: 'string',
+                title: 'Venus MQTT Username (paired token name)'
+              },
+              caFile: {
+                type: 'string',
+                title: 'Trusted MQTT CA certificate file (optional)'
+              },
+              servername: {
+                type: 'string',
+                title: 'MQTT TLS certificate hostname (optional)'
               },
               password: {
                 type: 'string',
@@ -535,7 +548,7 @@ module.exports = function (app: ServerAPI) {
       port = options.installType === 'mqtt' ? 1883 : 8883
       scheme = options.installType
       password = options.MQTT.password
-      username = ''
+      username = options.MQTT.username || ''
 
       if (!host || !host.length) {
         app.setPluginError('no host configured')
@@ -549,6 +562,14 @@ module.exports = function (app: ServerAPI) {
 
     const connectOptions: any = {
       rejectUnauthorized: false
+    }
+
+    if (!isVRM && options.MQTT.caFile) {
+      connectOptions.ca = fs.readFileSync(options.MQTT.caFile)
+      connectOptions.rejectUnauthorized = true
+      if (options.MQTT.servername) {
+        connectOptions.servername = options.MQTT.servername
+      }
     }
 
     if (password && password.length) {
