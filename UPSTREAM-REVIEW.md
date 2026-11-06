@@ -31,3 +31,7 @@ not a claim of passing CI, deployment readiness or completed hardware validation
 
 Keep boat identity, credentials, live data, custom release suffixes and deployment
 scripts out of an upstream submission. Publish nothing to the parent until approved.
+
+## Preparation results — 6 November 2026
+
+Patch applicability and TypeScript syntax transpilation passed. Clean npm ci is blocked by four missing optional Linux dependencies in the upstream lockfile (abstract-socket, bindings, nan and file-uri-to-path). The authentication/TLS candidate does not change that lockfile. Coordinate with upstream CI repair PR #206; no claim of passing build or full tests.
